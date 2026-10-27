@@ -1,0 +1,13 @@
+import wollok.game.* 
+import cajasGame.*
+
+program SokobanGame {
+	game.title("Acomodador de Cajas")
+	game.height(7)
+	game.width(9)
+	game.boardGround("baldosa.png")
+
+	nivel1.cargar()
+	
+	game.start()
+}
