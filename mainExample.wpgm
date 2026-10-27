@@ -1,7 +1,7 @@
 import wollok.game.* 
 import cajasGame.*
 
-program SokobanGame {
+program Game {
 	game.title("Acomodador de Cajas")
 	game.height(7)
 	game.width(9)

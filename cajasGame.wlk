@@ -15,7 +15,7 @@ class Caja {
 			{ obj => obj.puedePisarte(self) }
 		)
 		if (!lugarLibre) {
-			throw new DomainException(message = "Algo traba la caja.", source = sokoban)
+			throw new DomainException(message = "Algo traba la caja.", source = jugador)
 		}
 	}
 	
@@ -26,7 +26,7 @@ class Caja {
 	method estaBienPosicionada() = llegadas.any({ llegada => llegada.position() == position })
 }
 
-object sokoban {
+object jugador {
 	var property position = game.at(4, 3)
 	var direccion = arriba
 
@@ -121,27 +121,69 @@ class Llegada {
 
 object nivel1 {
 	method cargar() {
-		//	PAREDES
+		
+		// PAREDES
 		const ancho = game.width() - 1
 		const largo = game.height() - 1
-		
-		const posicionesParedes = []
-		(0 .. ancho).forEach(
-			{ n => posicionesParedes.add(new Position(x = n, y = 0)) }
-		) // bordeAbajo
-		
-		(0 .. ancho).forEach(
-			{ n => posicionesParedes.add(new Position(x = n, y = largo)) }
-		) // bordeArriba 
-		
-		(0 .. largo).forEach(
-			{ n => posicionesParedes.add(new Position(x = 0, y = n)) }
-		) // bordeIzq 
-		
-		(0 .. largo).forEach(
-			{ n => posicionesParedes.add(new Position(x = ancho, y = n)) }
-		) // bordeDer
-		
+
+		const posicionesParedes = [
+			// Borde inferior
+			new Position(x = 0, y = 0),
+			new Position(x = 1, y = 0),
+			new Position(x = 2, y = 0),
+			new Position(x = 3, y = 0),
+			new Position(x = 4, y = 0),
+			new Position(x = 5, y = 0),
+			new Position(x = 6, y = 0),
+			new Position(x = 7, y = 0),
+			new Position(x = 8, y = 0),
+
+			// Borde superior
+			new Position(x = 0, y = 6),
+			new Position(x = 1, y = 6),
+			new Position(x = 2, y = 6),
+			new Position(x = 3, y = 6),
+			new Position(x = 4, y = 6),
+			new Position(x = 5, y = 6),
+			new Position(x = 6, y = 6),
+			new Position(x = 7, y = 6),
+			new Position(x = 8, y = 6),
+
+			// Borde izquierdo
+			new Position(x = 0, y = 1),
+			new Position(x = 0, y = 2),
+			new Position(x = 0, y = 3),
+			new Position(x = 0, y = 4),
+			new Position(x = 0, y = 5),
+
+			// Borde derecho
+			new Position(x = 8, y = 1),
+			new Position(x = 8, y = 2),
+			new Position(x = 8, y = 3),
+			new Position(x = 8, y = 4),
+			new Position(x = 8, y = 5),
+
+			// Paredes interiores
+			new Position(x = 3, y = 5),
+			new Position(x = 4, y = 5),
+			new Position(x = 5, y = 5),
+
+			new Position(x = 1, y = 2),
+			new Position(x = 2, y = 2),
+			new Position(x = 6, y = 2),
+			new Position(x = 7, y = 2),
+
+			new Position(x = 1, y = 1),
+			new Position(x = 2, y = 1),
+			new Position(x = 6, y = 1),
+			new Position(x = 7, y = 1)
+		]
+
+		posicionesParedes.forEach({ posicion =>
+			self.dibujar(new Pared(position = posicion))
+		})
+
+
 		
 		posicionesParedes.addAll(
 			[
@@ -183,15 +225,15 @@ object nivel1 {
 		].map({ posicion => self.dibujar(new Caja(position = posicion, llegadas = llegadas)) })
 		//	SOKOBAN
 		
-		game.addVisual(sokoban) //	TECLADO
+		game.addVisual(jugador) //	TECLADO
 		
-		keyboard.up().onPressDo({ sokoban.irArriba() })
-		keyboard.down().onPressDo({ sokoban.irAbajo() })
-		keyboard.left().onPressDo({ sokoban.irIzquierda() })
-		keyboard.right().onPressDo({ sokoban.irDerecha() })
+		keyboard.up().onPressDo({ jugador.irArriba() })
+		keyboard.down().onPressDo({ jugador.irAbajo() })
+		keyboard.left().onPressDo({ jugador.irIzquierda() })
+		keyboard.right().onPressDo({ jugador.irDerecha() })
 		keyboard.r().onPressDo({ self.restart() })
 		//	COLISIONES.onPressDo({ self.comprobarSiGano(cajas) })
-		game.whenCollideDo(sokoban, { elemento => sokoban.empuja(elemento) })
+		game.whenCollideDo(jugador, { elemento => jugador.empuja(elemento) })
 	}
 	
 	method restart() {
@@ -206,7 +248,7 @@ object nivel1 {
 	
 	method comprobarSiGano(cajas) {
 		if (cajas.all({ caja => caja.estaBienPosicionada() }))
-			game.say(sokoban, "GANASTE!")
+			game.say(jugador, "GANASTE!")
 			game.onTick(5000, "gameEnd", { game.stop() })
 	}
 }
@@ -215,7 +257,7 @@ class Pared {
 	var property position
 	
 	method movete(direccion) {
-		throw new DomainException(message = "No puedes mover las paredes.", source = sokoban)
+		throw new DomainException(message = "No puedes mover las paredes.", source = jugador)
 	}
 	
 	method puedePisarte(_) = false
